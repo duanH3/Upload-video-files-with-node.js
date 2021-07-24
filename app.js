@@ -1,5 +1,3 @@
-//reference: https://www.prowaretech.com/Computer/JavaScript/Nodejs/DragAndDropAjaxFileUpload
-
 //var https = require('https');			//*** uncomment if using https with CA cert and key
 const express = require("express");
 const upload = require("express-fileupload");
