@@ -17,7 +17,7 @@ If want https you need keys from CA
 
 
 #### Usage
-Can upload single or multiple videos. Any other files besides video will be rejected
+Can upload single or multiple videos. Any other files that are not video will be rejected
 
 #### Packages used
     "express": "^4.17.1",
