@@ -8,8 +8,9 @@ Upload-video-files-with-node.js
 
 
 ```javascript
-cmd: git clone https://github.com/duanH3/pubsub-with-nodejs.git
+cmd: git clone https://github.com/duanH3/Upload-video-files-with-node.js.git
 cmd: cd pubsub-with-nodejs
 cmd: npm install
 cmd: node app.js
 ```
+If want https you need keys from CA
