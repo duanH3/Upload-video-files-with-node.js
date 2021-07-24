@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag-n-drop File Uploading</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        body {
+            padding: 0;
+            margin: 0;
+			color: rgb(100, 108, 127);
+			font-family: Roboto, "Open Sans", sans-serif;
+        }
+		h1 { text-align: center; }
+        img {
+            display: block;
+            margin: 0 auto;
+            width: 100%;
+            height: auto;
+        }
+		.dropzone {
+			background: white;
+			border-radius: 5px;
+			border: 2px dashed rgb(0, 135, 247);
+			border-image: none;
+			max-width: 500px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		.status {
+
+			max-width: 500px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+        #fileslbl {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 25vh;
+            background-color: white;
+            color: black;
+            padding: 16px;
+            text-align: center;
+            transition: .5s;
+			animation-duration: 1s;
+			animation-fill-mode: forwards;
+			animation-iteration-count: infinite;
+        }
+        #filesfld {
+            display: none;
+        }
+        #progress {
+            width: 0;
+            background-color: blue;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            line-height: 25px;
+            padding: 0 5px;
+        }
+		@keyframes dropbox {
+			0% {
+				background-image: repeating-linear-gradient(30deg, green 1%, green 3%, darkgreen 5%, darkgreen 5%);
+			}
+			50% {
+				background-image: repeating-linear-gradient(30deg, darkgreen 1%, darkgreen 3%, green 5%, green 5%);
+			}
+			100% {
+				background-image: repeating-linear-gradient(30deg, green 1%, green 3%, darkgreen 5%, darkgreen 5%);
+			}
+		}
+    </style>
+    <script type="text/javascript">
+        function stopDefault(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        function dragOver(label, text) {
+            /* ADD ALMOST ANY STYLING YOU LIKE */
+			label.style.animationName = "dropbox";
+            label.innerText = text;
+        }
+        function dragLeave(label) {
+            /* THIS SHOULD REMOVE ALL STYLING BY dragOver() */
+			var len = label.style.length;
+            for(var i = 0; i < len; i++) {
+				label.style[label.style[i]] = "";
+            }
+            label.innerText = "Click to choose file or drag-n-drop them here";
+        }
+        function addFilesAndSubmit(event) {
+            var files = event.target.files || event.dataTransfer.files;
+            document.getElementById("filesfld").files = files;
+            submitFilesForm(document.getElementById("filesfrm"));
+        }
+        function submitFilesForm(form) {
+            var label = document.getElementById("fileslbl");
+            dragOver(label, "Uploading file..."); // set the drop zone text and styling
+            var fd = new FormData();
+            for(var i = 0; i < form.filesfld.files.length; i++) {
+                var field = form.filesfld;
+                fd.append(field.name, field.files[i], field.files[i].name);
+            }
+            var progress = document.getElementById("progress");
+            var x = new XMLHttpRequest();
+            if(x.upload) {
+                x.upload.addEventListener("progress", function(event){
+                    var percentage = parseInt(event.loaded / event.total * 100);
+                    progress.innerText = progress.style.width = percentage + "%";
+                });
+            }
+            x.onreadystatechange = function () {
+				document.getElementById("p").textContent="";
+                if(x.readyState == 4) {
+                    progress.innerText = progress.style.width = "";
+                    form.filesfld.value = "";
+                    dragLeave(label); // this will reset the text and styling of the drop zone
+                    if(x.status == 200) {
+						var nHTML = '';
+                        var images = JSON.parse(x.responseText);
+
+						if(images.length > 0){						
+
+							  images.forEach(function(item) {
+								if(item==null){
+									item ="Invalid video file format"
+								}
+								nHTML += '<li>' + item.substring(1) + '</li>';
+							  });
+							
+							document.getElementById("p").textContent="Upload complete: ";
+							document.getElementById("item-list").innerHTML = '<ul>' + nHTML + '</ul>'
+							
+						} else {
+							document.getElementById("p").textContent="Invalid file format";
+						}
+						
+                    }
+                }
+            };
+            x.open("post", form.action, true);
+            x.send(fd);
+            return false;
+        }
+		
+		//make frontend accept video files only ->
+		//<input accept="video/mp4,video/x-m4v,video/*" 
+    </script>
+</head>
+<body>
+<h1>Node.js Video File Upload Demo</h1>
+<div class="dropzone">
+    <form id="filesfrm" action="/upload" method="post" onsubmit="return submitFilesForm(this);">
+        <input type="file" name="filesfld" id="filesfld" accept="video/mp4,video/x-m4v,video/*" onchange="submitFilesForm(this.form);" multiple />
+        <label for="filesfld" id="fileslbl"
+        ondragover="stopDefault(event);dragOver(this, 'Drop the images to upload them.');"
+        ondragenter="stopDefault(event);dragOver(this, 'Drop the images to upload them.');"
+        ondragleave="stopDefault(event);dragLeave(this);"
+        ondrop="stopDefault(event);dragLeave(this);addFilesAndSubmit(event);">Click to choose video or drag-n-drop them here</label>
+    </form>
+    <div style="text-align: left;"><div id="progress"></div></div>
+</div>	
+<br>
+	<div class="status">
+	<div id="p"></div>
+	<div id="item-list"></div>
+	</div>
+	
+	
+</body>
+</html>
+
