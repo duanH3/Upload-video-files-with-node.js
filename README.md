@@ -16,6 +16,9 @@ cmd: node app.js
 If want https you need keys from CA
 
 
+#### Can upload single or multiple videos
+Any other files besides video will be rejected
+
 #### Packages used
     "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
